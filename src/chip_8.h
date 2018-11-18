@@ -6,6 +6,7 @@
 const int DISPLAY_SIZE = 2056;
 const int MEM_SIZE = 4096;
 const int FONTSET_SIZE = 80;
+const int LOWER_MEMORY = 512; // Reserved for opcodes, fonts
 
 class chip_8 {
 private:
@@ -19,11 +20,13 @@ private:
     unsigned short stack_pointer;
 
     unsigned short instruction_pointer;
-    unsigned short index_regiser;
+    unsigned short index_register;
     unsigned short opcode;
 
     unsigned char delay_timer;
     unsigned char sound_timer;
+
+    bool screen_has_changed;
 
     void init(void);
 
