@@ -6,7 +6,8 @@ Chip-8 is an interpreted programming language used on computers such as the COSM
 
 # Screenshots
 
-
+![Alt text](/Screenshots/Pong.png?raw=true "Pong!")
+![Alt text](/Screenshots/Brix0.png?raw=true "Brix")
 
 # Additional Information
 
