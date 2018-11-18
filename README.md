@@ -6,6 +6,7 @@ Chip-8 emulator written in C++  with the SDL multimedia library.
 
 # Building
 
+To compile the emulator, install the cmake and libsdl2-dev packages
 
 
 # Use

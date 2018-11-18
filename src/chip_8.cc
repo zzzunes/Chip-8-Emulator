@@ -35,7 +35,7 @@ bool chip_8::load(std::string file_path) {
     std::cout << "Loading ROM..." << std::endl;
     std::ifstream input_rom;
 
-    input_rom.open(file_path, std::ios::out);
+    input_rom.open(file_path, std::ios::in);
     if (not input_rom.is_open()) {
         std::cout << "Failed to load ROM." << std::endl;
         return false;
@@ -99,10 +99,11 @@ bool chip_8::execute_instruction() {
                 }
 
                 default: {
-                    std::cout << "ROM includes unknown opcode." << std::endl;
+                    std::cout << "ROM includes unknown opcode. 1" << std::endl;
                     opcode_success = false;
                 }
             }
+            break;
         }
         // 1NNN - Jumps to NNN
         case 0x1000: {
@@ -120,7 +121,7 @@ bool chip_8::execute_instruction() {
         // 3[X]NN - Skips next instruction if register V[X] == NN
         // The term V[opcode & 0x0F00] >> 8 finds V[X] since the registers are 16 bits
         case 0x3000: {
-            if (V[opcode & 0x0F00 >> 8] == (opcode & 0x00FF)) {
+            if (V[(opcode & 0x0F00) >> 8] == (opcode & 0x00FF)) {
                 instruction_pointer += 4;
             }
             else instruction_pointer += 2;
@@ -129,7 +130,7 @@ bool chip_8::execute_instruction() {
 
         // 4[X]NN - Skips next instruction if register V[X] != NN
         case 0x4000: {
-            if (V[opcode & 0x0F00 >> 8] != (opcode & 0x00FF)) {
+            if (V[(opcode & 0x0F00) >> 8] != (opcode & 0x00FF)) {
                 instruction_pointer += 4;
             }
             else instruction_pointer += 2;
@@ -138,7 +139,7 @@ bool chip_8::execute_instruction() {
 
         // 5XY0 - Skips next instruction if V[X] == VY
         case 0x5000: {
-            if (V[opcode & 0x0F00 >> 8] == V[opcode & 0x00F0 >> 4]) {
+            if (V[(opcode & 0x0F00) >> 8] == V[(opcode & 0x00F0) >> 4]) {
                 instruction_pointer += 4;
             }
             else instruction_pointer += 2;
@@ -147,14 +148,14 @@ bool chip_8::execute_instruction() {
 
         // 6XNN - Sets V[X] to NN
         case 0x6000: {
-            V[opcode & 0x0F00 >> 8] = opcode & 0x00FF;
+            V[(opcode & 0x0F00) >> 8] = opcode & 0x00FF;
             instruction_pointer += 2;
             break;
         }
 
         // 7XNN - adds NN to V[X]
         case 0x7000: {
-            V[opcode & 0x0F00 >> 8] += opcode & 0x00FF;
+            V[(opcode & 0x0F00) >> 8] += opcode & 0x00FF;
             instruction_pointer += 2;
             break;
         }
@@ -163,80 +164,81 @@ bool chip_8::execute_instruction() {
             switch (opcode & 0x000F) {
                 // 8XY0 - Sets V[X] to V[Y]
                 case 0x0000: {
-                    V[opcode & 0x0F00 >> 8] = V[opcode & 0x00F0 >> 4];
+                    V[(opcode & 0x0F00) >> 8] = V[(opcode & 0x00F0) >> 4];
                     instruction_pointer += 2;
                     break;
                 }
 
                 // 8XY1 - Sets V[X] to V[X] || V[Y]
                 case 0x0001: {
-                    V[opcode & 0x0F00 >> 8] |= V[opcode & 0x00F0 >> 4];
+                    V[(opcode & 0x0F00) >> 8] |= V[(opcode & 0x00F0) >> 4];
                     instruction_pointer += 2;
                     break;
                 }
 
                 // 8XY2 - Sets V[X] to V[X] & V[Y]
                 case 0x0002: {
-                    V[opcode & 0x0F00 >> 8] &= V[opcode & 0x00F0 >> 4];
+                    V[(opcode & 0x0F00) >> 8] &= V[(opcode & 0x00F0) >> 4];
                     instruction_pointer += 2;
                     break;
                 }
 
                 // 8XY3 - Sets V[X] to V[X] ^ V[Y]
                 case 0x0003: {
-                    V[opcode & 0x0F00 >> 8] ^= V[opcode & 0x00F0 >> 4];
+                    V[(opcode & 0x0F00) >> 8] ^= V[(opcode & 0x00F0) >> 4];
                     instruction_pointer += 2;
                     break;
                 }
 
                 // 8XY4 - Adds V[Y] to V[X], VF is set to 1 if there's carry
                 case 0x0004: {
-                    if (V[opcode & 0x0F00 >> 8] <= V[opcode & 0x00F0 >> 4]) V[0xF] = 1;
+                    if (V[(opcode & 0x0F00) >> 8] <= V[(opcode & 0x00F0) >> 4]) V[0xF] = 1;
                     else V[0xF] = 0;
-                    V[opcode & 0x0F00 >> 8] += V[opcode & 0x00F0 >> 4];
+                    V[(opcode & 0x0F00) >> 8] += V[(opcode & 0x00F0) >> 4];
                     instruction_pointer += 2;
                     break;
                 }
 
                 // 8XY5 - Subtracts V[Y] from V[X], VF is set to 0 if there's borrow
                 case 0x0005: {
-                    if (V[opcode & 0x0F00 >> 8] <= V[opcode & 0x00F0 >> 4]) V[0xF] = 0;
+                    if (V[(opcode & 0x0F00) >> 8] <= V[(opcode & 0x00F0) >> 4]) V[0xF] = 0;
                     else V[0xF] = 1;
-                    V[opcode & 0x0F00 >> 8] -= V[opcode & 0x00F0 >> 4];
+                    V[(opcode & 0x0F00) >> 8] -= V[(opcode & 0x00F0) >> 4];
                     instruction_pointer += 2;
                     break;
                 }
 
                 // 8XY6 - Stores least significant bit of V[X] in VF then V[X] >> 1
                 case 0x0006: {
-                    V[0xF] = V[opcode & 0x0F00 >> 8] & 1;
-                    V[opcode & 0x0F00 >> 8] >>= 1;
+                    V[0xF] = V[opcode & 0x0F00 >> 8] & 0x1;
+                    V[(opcode & 0x0F00) >> 8] >>= 1;
                     instruction_pointer += 2;
                     break;
                 }
 
                 // 8XY7 - Sets V[X] to V[Y] minus V[X], VF is set to 0 if there's borrow
                 case 0x0007: {
-                    if (V[opcode & 0x00F0 >> 4] <= V[opcode & 0x0F00 >> 8]) V[0xF] = 0;
+                    if (V[(opcode & 0x00F0) >> 4] <= V[(opcode & 0x0F00) >> 8]) V[0xF] = 0;
                     else V[0xF] = 1;
-                    V[opcode & 0x0F00 >> 8] = V[opcode & 0x00F0 >> 4] - V[opcode & 0x0F00 >> 8];
+                    V[(opcode & 0x0F00) >> 8] = V[(opcode & 0x00F0) >> 4] - V[(opcode & 0x0F00) >> 8];
                     instruction_pointer += 2;
                     break;
                 }
 
                 // 8XYE - Stores most significant bit of V[X] in V[F] then V[X] << 1
                 case 0x000E: {
-                    V[0xF] = V[opcode & 0x0F00 >> 8] & 0xF;
-                    V[opcode & 0x0F00 >> 8] <<= 1;
+                    V[0xF] = V[(opcode & 0x0F00) >> 8] & 0xF;
+                    V[(opcode & 0x0F00) >> 8] <<= 1;
                     instruction_pointer += 2;
                     break;
                 }
 
                 default: {
-                    std::cout << "ROM includes unknown opcode." << std::endl;
+                    std::cout << "ROM includes unknown opcode. 2" << std::endl;
                     opcode_success = false;
                 }
             }
+            break;
         }
 
         // 9XY0 - Skips next instruction if V[X] != V[Y]
@@ -276,17 +278,24 @@ bool chip_8::execute_instruction() {
         // and height N pixels. Each row is read as bit-coded starting from Index Register.
         // VF is set to 1 if any pixels are flipped from set --> unset; VF set to 0 otherwise
         case 0xD000: {
-            V[0xF] = 0;
+            unsigned short x = V[(opcode & 0x0F00) >> 8];
+            unsigned short y = V[(opcode & 0x00F0) >> 4];
+            unsigned short height = opcode & 0x000F;
             unsigned short pixel;
 
-            for (int y = 0; y < opcode & 0x000F; y++) {
-                pixel = memory[index_register + y];
-                for (int x = 0; x < 8; x++) {
-                    if (pixel & (128 >> x)) {
-                        if (screen[(x + V[opcode & 0x0F00 >> 8] + ((V[opcode & 0x00F0 >> 4] + y) * 64))] == 1) {
+            V[0xF] = 0;
+            for (int yline = 0; yline < height; yline++)
+            {
+                pixel = memory[index_register + yline];
+                for(int xline = 0; xline < 8; xline++)
+                {
+                    if((pixel & (0x80 >> xline)) != 0)
+                    {
+                        if(screen[(x + xline + ((y + yline) * 64))] == 1)
+                        {
                             V[0xF] = 1;
                         }
-                        screen[(x + V[opcode & 0x0F00 >> 8] + ((V[opcode & 0x00F0 >> 4] + y) * 64))] ^= 1;
+                        screen[x + xline + ((y + yline) * 64)] ^= 1;
                     }
                 }
             }
@@ -301,30 +310,31 @@ bool chip_8::execute_instruction() {
             switch (opcode & 0x000F) {
                 // EX9E - Skips next instruction if key stored in V[X] is pressed
                 case 0x000E: {
-                    if (keypad[V[opcode & 0x0F00 >> 8]]) instruction_pointer +=4;
+                    if (keypad[V[(opcode & 0x0F00) >> 8]]) instruction_pointer +=4;
                     else instruction_pointer += 2;
                     break;
                 }
 
                 // EXA1 - Skips next instruction if key stored in V[X} ISN'T pressed
                 case 0x0001: {
-                    if (not keypad[V[opcode & 0x0F00 >> 8]]) instruction_pointer +=4;
+                    if (not keypad[V[(opcode & 0x0F00) >> 8]]) instruction_pointer +=4;
                     else instruction_pointer += 2;
                     break;
                 }
 
                 default: {
-                    std::cout << "ROM includes unknown opcode." << std::endl;
+                    std::cout << "ROM includes unknown opcode. 3" << std::endl;
                     opcode_success = false;
                 }
             }
+            break;
         }
 
         case 0xF000: {
             switch (opcode & 0x00FF) {
                 // FX07 - Sets V[X] to value of delay timer
                 case 0x0007: {
-                    V[opcode & 0x0F00 >> 8] = delay_timer;
+                    V[(opcode & 0x0F00) >> 8] = delay_timer;
                     instruction_pointer += 2;
                     break;
                 }
@@ -335,7 +345,7 @@ bool chip_8::execute_instruction() {
 
                     for (int i = 0; i < 16; i++) {
                         if (keypad[i]) {
-                            V[opcode & 0x0F00 >> 8] = keypad[i];
+                            V[(opcode & 0x0F00) >> 8] = i;
                             obtained_key = true;
                         }
                     }
@@ -349,14 +359,14 @@ bool chip_8::execute_instruction() {
 
                 // FX15 - Sets delay timer to V[X]
                 case 0x0015: {
-                    delay_timer = V[opcode & 0x0F00 >> 8];
+                    delay_timer = V[(opcode & 0x0F00) >> 8];
                     instruction_pointer += 2;
                     break;
                 }
 
                 // FX18 - Sets sound timer to V[X]
                 case 0x0018: {
-                    sound_timer = V[opcode & 0x0F00 >> 8];
+                    sound_timer = V[(opcode & 0x0F00) >> 8];
                     instruction_pointer += 2;
                     break;
                 }
@@ -366,7 +376,7 @@ bool chip_8::execute_instruction() {
                     if(index_register + V[(opcode & 0x0F00) >> 8] > 0xFFF) V[0xF] = 1;
                     else V[0xF] = 0;
 
-                    index_register += V[opcode & 0x0F00 >> 8];
+                    index_register += V[(opcode & 0x0F00) >> 8];
                     instruction_pointer += 2;
                     break;
                 }
@@ -374,7 +384,7 @@ bool chip_8::execute_instruction() {
                 // FX29 - Sets index register to location of sprite for the character in V[X]
                 // Remember, the fontset array in chip_8.h works in sets of five
                 case 0x0029: {
-                    index_register = V[opcode & 0x0F00 >> 8] * 5;
+                    index_register = V[(opcode & 0x0F00) >> 8] * 0x5;
                     instruction_pointer += 2;
                     break;
                 }
@@ -384,9 +394,9 @@ bool chip_8::execute_instruction() {
                 // Three most significant, middle digit, least significant
                 // For BCD info --> https://www.electronics-tutorials.ws/binary/binary-coded-decimal.html
                 case 0x0033: {
-                    memory[index_register] = V[opcode & 0x0F00 >> 8] / 100; // Three most
-                    memory[index_register+1] = (V[opcode & 0x0F00 >> 8] / 10) % 10; // Middle digit
-                    memory[index_register+2] = (V[opcode & 0x0F00 >> 8] % 100) % 10; // Least significant
+                    memory[index_register] = V[(opcode & 0x0F00) >> 8] / 100; // Three most
+                    memory[index_register+1] = (V[(opcode & 0x0F00) >> 8] / 10) % 10; // Middle digit
+                    memory[index_register+2] = (V[(opcode & 0x0F00) >> 8] % 100) % 10; // Least significant
 
                     instruction_pointer += 2;
                     break;
@@ -396,11 +406,11 @@ bool chip_8::execute_instruction() {
                 // FX55 - Stores V[0] to V[X] in memory starting at index. The offset from index is
                 // increased by 1 for each value written
                 case 0x0055: {
-                    for (int i = 0; i <= (opcode & 0x0F00 >> 8); i++) {
+                    for (int i = 0; i <= ((opcode & 0x0F00) >> 8); i++) {
                         memory[index_register + i] = V[i];
                     }
 
-                    index_register += (opcode & 0x0F00 >> 8) + 1;
+                    index_register += ((opcode & 0x0F00) >> 8) + 1;
                     instruction_pointer += 2;
                     break;
                 }
@@ -409,29 +419,30 @@ bool chip_8::execute_instruction() {
                 // FX65 - Fills V[0] to V[X] with values from memory starting at address of the index register.
                 // Again, offset from index is increased by 1 for each value written
                 case 0x0065: {
-                    for (int i = 0; i <= (opcode & 0x0F00 >> 8); i++) {
+                    for (int i = 0; i <= ((opcode & 0x0F00) >> 8); i++) {
                         V[i] = memory[index_register + i];
                     }
 
-                    index_register += (opcode & 0x0F00 >> 8) + 1;
+                    index_register += ((opcode & 0x0F00) >> 8) + 1;
                     instruction_pointer += 2;
                     break;
                 }
 
                 default: {
-                    std::cout << "ROM includes unknown opcode." << std::endl;
+                    std::cout << "ROM includes unknown opcode. 4" << std::endl;
                     opcode_success = false;
                 }
             }
+            break;
         }
 
         default: {
-            std::cout << "ROM includes unknown opcode." << std::endl;
+            std::cout << "ROM includes unknown opcode: 5" << std::endl;
             opcode_success = false;
         }
     }
 
-    if (delay_timer) delay_timer--;
+    if (delay_timer > 0) delay_timer--;
     if (sound_timer > 0) {
         if (sound_timer == 1);
         sound_timer--;
