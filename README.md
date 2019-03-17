@@ -15,7 +15,7 @@ $ make; make clean
 Then, to run the emulator:
 
 ``` 
-$ chip_8 ../Roms/PONG 
+$ ./chip_8 ../Roms/PONG 
 ```
 
 
