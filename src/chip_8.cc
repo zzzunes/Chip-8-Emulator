@@ -28,23 +28,23 @@ void chip_8::init(void) {
 }
 
 void chip_8::cycle() {
-	fetch_opcode();
-	execute_instruction();
-	count_timer();
+    fetch_opcode();
+    execute_instruction();
+    count_timer();
 }
 
 void chip_8::fetch_opcode() {
-	this->opcode = opcode = memory[instruction_pointer] << 8 | memory[instruction_pointer + 1];
+    this->opcode = opcode = memory[instruction_pointer] << 8 | memory[instruction_pointer + 1];
 }
 
 void chip_8::count_timer() {
-	auto current_time = std::chrono::system_clock::now();
-	auto duration = current_time - last_cycle;
-	auto cycle_time = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
-	if (delay_timer > 0 && cycle_time > 3) {
-		delay_timer--;
-		last_cycle = current_time;
-	}
+    auto current_time = std::chrono::system_clock::now();
+    auto duration = current_time - last_cycle;
+    auto cycle_time = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
+    if (delay_timer > 0 && cycle_time > 3) {
+        delay_timer--;
+        last_cycle = current_time;
+    }
 }
 
 bool chip_8::load(std::string file_path) {
@@ -91,16 +91,16 @@ bool chip_8::load(std::string file_path) {
 
 /* Called on every frame to load current VRAM (screen) into pixels array used by SDL */
 void chip_8::loadVideoRamInto(std::array<uint32_t, DISPLAY_SIZE>& pixels) {
-	for (int i = 0; i < DISPLAY_SIZE; i++) {
-		unsigned char pixel = screen[i];
-		unsigned int color = 0x0050FF50;
-		pixels[i] = color * pixel | 0xFF000000;
-	}
+    for (int i = 0; i < DISPLAY_SIZE; i++) {
+        unsigned char pixel = screen[i];
+        unsigned int color = 0x0050FF50;
+        pixels[i] = color * pixel | 0xFF000000;
+    }
 }
 
 void chip_8::execute_instruction() {
-	uint8_t x = (opcode & 0x0F00) >> 8; /* Used for register indexing V[x] & V[y] */
-	uint8_t y = (opcode & 0x00F0) >> 4;
+    uint8_t x = (opcode & 0x0F00) >> 8; /* Used for register indexing V[x] & V[y] */
+    uint8_t y = (opcode & 0x00F0) >> 4;
     switch (opcode & 0xF000) {
         case 0x0000: {
             switch (opcode & 0x000F) {
@@ -111,7 +111,7 @@ void chip_8::execute_instruction() {
                     instruction_pointer += 2;
                     break;
                 }
-                // 00EE - Return from subroutine
+                    // 00EE - Return from subroutine
                 case 0x000E: {
                     instruction_pointer = stack[--stack_pointer];
                     instruction_pointer += 2;
@@ -124,21 +124,21 @@ void chip_8::execute_instruction() {
             }
             break;
         }
-        // 1NNN - Jumps to NNN
+            // 1NNN - Jumps to NNN
         case 0x1000: {
             instruction_pointer = opcode & 0xFFF;
             break;
         }
 
-        // 2NNN - Calls subroutine at NNN
+            // 2NNN - Calls subroutine at NNN
         case 0x2000: {
             stack[stack_pointer++] = instruction_pointer;
             instruction_pointer = opcode & 0x0FFF;
             break;
         }
 
-        // 3[X]NN - Skips next instruction if register V[X] == NN
-        // The term V[opcode & 0x0F00] >> 8 finds V[X] since the registers are 16 bits
+            // 3[X]NN - Skips next instruction if register V[X] == NN
+            // The term V[opcode & 0x0F00] >> 8 finds V[X] since the registers are 16 bits
         case 0x3000: {
             if (V[x] == (opcode & 0x00FF)) {
                 instruction_pointer += 4;
@@ -147,7 +147,7 @@ void chip_8::execute_instruction() {
             break;
         }
 
-        // 4[X]NN - Skips next instruction if register V[X] != NN
+            // 4[X]NN - Skips next instruction if register V[X] != NN
         case 0x4000: {
             if (V[x] != (opcode & 0x00FF)) {
                 instruction_pointer += 4;
@@ -156,7 +156,7 @@ void chip_8::execute_instruction() {
             break;
         }
 
-        // 5XY0 - Skips next instruction if V[X] == VY
+            // 5XY0 - Skips next instruction if V[X] == VY
         case 0x5000: {
             if (V[x] == V[(opcode & 0x00F0) >> 4]) {
                 instruction_pointer += 4;
@@ -165,14 +165,14 @@ void chip_8::execute_instruction() {
             break;
         }
 
-        // 6XNN - Sets V[X] to NN
+            // 6XNN - Sets V[X] to NN
         case 0x6000: {
             V[x] = opcode & 0x00FF;
             instruction_pointer += 2;
             break;
         }
 
-        // 7XNN - adds NN to V[X]
+            // 7XNN - adds NN to V[X]
         case 0x7000: {
             V[x] += opcode & 0x00FF;
             instruction_pointer += 2;
@@ -188,28 +188,28 @@ void chip_8::execute_instruction() {
                     break;
                 }
 
-                // 8XY1 - Sets V[X] to V[X] || V[Y]
+                    // 8XY1 - Sets V[X] to V[X] || V[Y]
                 case 0x0001: {
                     V[x] |= V[y];
                     instruction_pointer += 2;
                     break;
                 }
 
-                // 8XY2 - Sets V[X] to V[X] & V[Y]
+                    // 8XY2 - Sets V[X] to V[X] & V[Y]
                 case 0x0002: {
                     V[x] &= V[y];
                     instruction_pointer += 2;
                     break;
                 }
 
-                // 8XY3 - Sets V[X] to V[X] ^ V[Y]
+                    // 8XY3 - Sets V[X] to V[X] ^ V[Y]
                 case 0x0003: {
                     V[x] ^= V[y];
                     instruction_pointer += 2;
                     break;
                 }
 
-                // 8XY4 - Adds V[Y] to V[X], VF is set to 1 if there's carry
+                    // 8XY4 - Adds V[Y] to V[X], VF is set to 1 if there's carry
                 case 0x0004: {
                     if (V[x] <= V[y]) V[0xF] = 1;
                     else V[0xF] = 0;
@@ -218,7 +218,7 @@ void chip_8::execute_instruction() {
                     break;
                 }
 
-                // 8XY5 - Subtracts V[Y] from V[X], VF is set to 0 if there's borrow
+                    // 8XY5 - Subtracts V[Y] from V[X], VF is set to 0 if there's borrow
                 case 0x0005: {
                     if (V[x] <= V[y]) V[0xF] = 0;
                     else V[0xF] = 1;
@@ -227,7 +227,7 @@ void chip_8::execute_instruction() {
                     break;
                 }
 
-                // 8XY6 - Stores least significant bit of V[X] in VF then V[X] >> 1
+                    // 8XY6 - Stores least significant bit of V[X] in VF then V[X] >> 1
                 case 0x0006: {
                     V[0xF] = V[x] & 0x1;
                     V[x] >>= 1;
@@ -235,7 +235,7 @@ void chip_8::execute_instruction() {
                     break;
                 }
 
-                // 8XY7 - Sets V[X] to V[Y] minus V[X], VF is set to 0 if there's borrow
+                    // 8XY7 - Sets V[X] to V[Y] minus V[X], VF is set to 0 if there's borrow
                 case 0x0007: {
                     if (V[y] <= V[x]) V[0xF] = 0;
                     else V[0xF] = 1;
@@ -244,7 +244,7 @@ void chip_8::execute_instruction() {
                     break;
                 }
 
-                // 8XYE - Stores most significant bit of V[X] in V[F] then V[X] << 1
+                    // 8XYE - Stores most significant bit of V[X] in V[F] then V[X] << 1
                 case 0x000E: {
                     V[0xF] = V[x] & 0xF;
                     V[x] <<= 1;
@@ -259,27 +259,27 @@ void chip_8::execute_instruction() {
             break;
         }
 
-        // 9XY0 - Skips next instruction if V[X] != V[Y]
+            // 9XY0 - Skips next instruction if V[X] != V[Y]
         case 0x9000: {
             if (V[x] != V[y]) instruction_pointer += 2;
             instruction_pointer += 2;
             break;
         }
 
-        // ANNN - Sets Index Register to NNN
+            // ANNN - Sets Index Register to NNN
         case 0xA000: {
             index_register = opcode & 0x0FFF;
             instruction_pointer += 2;
             break;
         }
 
-        // BNNN - Sets instruction pointer to NNN plus V[0]
+            // BNNN - Sets instruction pointer to NNN plus V[0]
         case 0xB000: {
             instruction_pointer = (opcode & 0x0FFF) + V[0];
             break;
         }
 
-        // CXNN - Sets V[X] to result of a random number bitwise and with NN
+            // CXNN - Sets V[X] to result of a random number bitwise and with NN
         case 0xC000: {
             // Random generation from user Cornstalks on StackOverflow:
             // https://stackoverflow.com/questions/13445688/how-to-generate-a-random-number-in-c
@@ -292,16 +292,16 @@ void chip_8::execute_instruction() {
             break;
         }
 
-        /*
-         * DXYN - Draws a sprite at coordinate (V[X], V[Y]) that has width of 8 pixels
-         * and height N pixels. Each row is read as bit-coded starting from Index Register.
-         * VF is set to 1 if any pixels are flipped from set --> unset; VF set to 0 otherwise
-         */
+            /*
+             * DXYN - Draws a sprite at coordinate (V[X], V[Y]) that has width of 8 pixels
+             * and height N pixels. Each row is read as bit-coded starting from Index Register.
+             * VF is set to 1 if any pixels are flipped from set --> unset; VF set to 0 otherwise
+             */
         case 0xD000: {
-        	uint16_t vx = V[x];
-        	uint16_t vy = V[y];
-			uint16_t height = opcode & 0x000F;
-			uint16_t pixel;
+            uint16_t vx = V[x];
+            uint16_t vy = V[y];
+            uint16_t height = opcode & 0x000F;
+            uint16_t pixel;
 
             V[0xF] = 0;
             for (int yline = 0; yline < height; yline++)
@@ -325,7 +325,7 @@ void chip_8::execute_instruction() {
             break;
         }
 
-        // Key operations
+            // Key operations
         case 0xE000: {
             switch (opcode & 0x000F) {
                 // EX9E - Skips next instruction if key stored in V[X] is pressed
@@ -335,7 +335,7 @@ void chip_8::execute_instruction() {
                     break;
                 }
 
-                // EXA1 - Skips next instruction if key stored in V[X} ISN'T pressed
+                    // EXA1 - Skips next instruction if key stored in V[X} ISN'T pressed
                 case 0x0001: {
                     if (not keypad[V[x]]) instruction_pointer += 2;
                     instruction_pointer += 2;
@@ -358,7 +358,7 @@ void chip_8::execute_instruction() {
                     break;
                 }
 
-                // FX0A - Awaits key press, stores key in V[X]
+                    // FX0A - Awaits key press, stores key in V[X]
                 case 0x000A: {
                     bool obtained_key = false;
 
@@ -374,21 +374,21 @@ void chip_8::execute_instruction() {
                     break;
                 }
 
-                // FX15 - Sets delay timer to V[X]
+                    // FX15 - Sets delay timer to V[X]
                 case 0x0015: {
                     delay_timer = V[x];
                     instruction_pointer += 2;
                     break;
                 }
 
-                // FX18 - Sets sound timer to V[X]
+                    // FX18 - Sets sound timer to V[X]
                 case 0x0018: {
                     /* Sound timer */
                     instruction_pointer += 2;
                     break;
                 }
 
-                // FX1E - Sets index register to V[X]
+                    // FX1E - Sets index register to V[X]
                 case 0x001E: {
                     if(index_register + V[x] > 0xFFF) V[0xF] = 1;
                     else V[0xF] = 0;
@@ -398,18 +398,18 @@ void chip_8::execute_instruction() {
                     break;
                 }
 
-                // FX29 - Sets index register to location of sprite for the character in V[X]
-                // Remember, the fontset array in chip_8.h works in sets of five
+                    // FX29 - Sets index register to location of sprite for the character in V[X]
+                    // Remember, the fontset array in chip_8.h works in sets of five
                 case 0x0029: {
                     index_register = V[x] * 0x5;
                     instruction_pointer += 2;
                     break;
                 }
 
-                // FX33 - Stores the binary coded decimal representation of V[X]
-                // at addresses of index, index + 1, index + 2
-                // Three most significant, middle digit, least significant
-                // For BCD info --> https://www.electronics-tutorials.ws/binary/binary-coded-decimal.html
+                    // FX33 - Stores the binary coded decimal representation of V[X]
+                    // at addresses of index, index + 1, index + 2
+                    // Three most significant, middle digit, least significant
+                    // For BCD info --> https://www.electronics-tutorials.ws/binary/binary-coded-decimal.html
                 case 0x0033: {
                     memory[index_register] = V[x] / 100; /* Most significant */
                     memory[index_register+1] = (V[x] / 10) % 10; /* Middle digit */
@@ -418,9 +418,9 @@ void chip_8::execute_instruction() {
                     break;
                 }
 
-                // Almost there..
-                // FX55 - Stores V[0] to V[X] in memory starting at index. The offset from index is
-                // increased by 1 for each value written
+                    // Almost there..
+                    // FX55 - Stores V[0] to V[X] in memory starting at index. The offset from index is
+                    // increased by 1 for each value written
                 case 0x0055: {
                     for (int i = 0; i <= x; i++) {
                         memory[index_register + i] = V[i];
@@ -431,9 +431,9 @@ void chip_8::execute_instruction() {
                     break;
                 }
 
-                // Finally!
-                // FX65 - Fills V[0] to V[X] with values from memory starting at address of the index register.
-                // Again, offset from index is increased by 1 for each value written
+                    // Finally!
+                    // FX65 - Fills V[0] to V[X] with values from memory starting at address of the index register.
+                    // Again, offset from index is increased by 1 for each value written
                 case 0x0065: {
                     for (int i = 0; i <= x; i++) {
                         V[i] = memory[index_register + i];

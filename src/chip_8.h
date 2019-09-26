@@ -24,15 +24,15 @@ private:
     std::chrono::system_clock::time_point last_cycle;
 
     void init(void);
-	void fetch_opcode(void);
-	void execute_instruction(void);
-	void count_timer(void);
+    void fetch_opcode(void);
+    void execute_instruction(void);
+    void count_timer(void);
 
 public:
-	bool load(std::string file_path);
-	void cycle(void);
-	void loadVideoRamInto(std::array<uint32_t, DISPLAY_SIZE>& pixels);
-	bool needs_to_draw;
+    bool load(std::string file_path);
+    void cycle(void);
+    void loadVideoRamInto(std::array<uint32_t, DISPLAY_SIZE>& pixels);
+    bool needs_to_draw;
 
     std::array<unsigned char, 16> keypad;
     std::array<unsigned char, DISPLAY_SIZE> screen;
@@ -58,9 +58,9 @@ public:
 
     /* For SDL obtaining keypress, updating keypad */
     const std::array<unsigned char, 16> keymap {
-            SDLK_x, SDLK_1, SDLK_2, SDLK_3, SDLK_q,
-            SDLK_w, SDLK_e, SDLK_a, SDLK_s, SDLK_d,
-            SDLK_z, SDLK_c, SDLK_4, SDLK_r, SDLK_f, SDLK_v,
+        SDLK_x, SDLK_1, SDLK_2, SDLK_3, SDLK_q,
+        SDLK_w, SDLK_e, SDLK_a, SDLK_s, SDLK_d,
+        SDLK_z, SDLK_c, SDLK_4, SDLK_r, SDLK_f, SDLK_v,
     };
 };
 
