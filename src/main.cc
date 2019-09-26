@@ -7,10 +7,18 @@
 const int WIDTH = 1280;
 const int HEIGHT = 720;
 
+bool validArgs(int argc) {
+	if (argc not_eq 2) {
+		std::cout << "Usage: chip-8 <ROM>" << std::endl;
+		return false;
+	}
+	return true;
+}
+
 static SDL_Window* sdlInit() {
 	SDL_Window* window = nullptr;
 
-	if (SDL_Init(SDL_INIT_EVERYTHING) < 0) {
+	if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
 		std::cout << "Error: Could not initialize SDL drawing." << std::endl;
 		exit(EXIT_FAILURE);
 	}
@@ -22,8 +30,17 @@ static SDL_Window* sdlInit() {
 		std::cout << "Could not create window. \n" << SDL_GetError() << std::endl;
 		exit(EXIT_FAILURE);
 	}
-
 	return window;
+}
+
+static SDL_Renderer* rendererInit(SDL_Window* window) {
+	SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, 0);
+	SDL_RenderSetLogicalSize(renderer, WIDTH, HEIGHT);
+	return renderer;
+}
+
+static SDL_Texture* textureInit(SDL_Renderer* renderer) {
+	return SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, 64, 32);
 }
 
 static void setKeysDown(chip_8& cpu, SDL_Event event) {
@@ -43,22 +60,13 @@ static void setKeysUp(chip_8& cpu, SDL_Event event) {
 }
 
 int main(int argc, char* argv[]) {
-	 if (argc not_eq 2) {
-        std::cout << "Usage: chip-8 <ROM>" << std::endl;
-        return -1;
-    }
-
+	if (not validArgs(argc)) exit(EXIT_FAILURE);
     chip_8 cpu = chip_8();
-
 	SDL_Window* window = sdlInit();
-    SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, 0);
-    SDL_RenderSetLogicalSize(renderer, WIDTH, HEIGHT);
-    SDL_Texture* sdl_texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888,
-                                                 SDL_TEXTUREACCESS_STREAMING, 64, 32);
-
-
+    SDL_Renderer* renderer = rendererInit(window);
+    SDL_Texture* texture = textureInit(renderer);
     if (not cpu.load(argv[1])) return -1;
-	uint32_t pixels[DISPLAY_SIZE];
+	std::array<uint32_t, DISPLAY_SIZE> pixels {};
 
     game_loop:
         cpu.execute_instruction();
@@ -83,12 +91,13 @@ int main(int argc, char* argv[]) {
 
         for (int i = 0; i < 2048; i++) {
             unsigned char pixel = cpu.screen[i];
-            pixels[i] = 0x0000FF00 * pixel | 0xFF000000;
+            unsigned int color = 0x00FF7F00;
+            pixels[i] = color * pixel | 0xFF000000;
         }
 
-        SDL_UpdateTexture(sdl_texture, nullptr, pixels, 64 * sizeof(unsigned int));
+        SDL_UpdateTexture(texture, nullptr, pixels.begin(), 64 * sizeof(unsigned int));
         SDL_RenderClear(renderer);
-        SDL_RenderCopy(renderer, sdl_texture, nullptr, nullptr);
+        SDL_RenderCopy(renderer, texture, nullptr, nullptr);
         SDL_RenderPresent(renderer);
     }
 
