@@ -3,38 +3,39 @@
 
 #include <array>
 #include <SDL2/SDL.h>
+#include <chrono>
 
 const int DISPLAY_SIZE = 2048;
 const int MEM_SIZE = 4096;
 const int FONTSET_SIZE = 80;
-const int LOWER_MEMORY = 512; // Reserved for opcodes, fonts
+const int LOWER_MEMORY = 512;
 
 class chip_8 {
 private:
     std::array<unsigned char, MEM_SIZE> memory;
-    std::array<unsigned char, 16> V; // Registers V0-VF
-
+    std::array<unsigned char, 16> V; /* Registers V0-VF */
     std::array<unsigned short, 16> stack;
-    unsigned short stack_pointer;
 
+    unsigned short stack_pointer;
     unsigned short instruction_pointer;
     unsigned short index_register;
     unsigned short opcode;
-
     unsigned char delay_timer;
+    std::chrono::system_clock::time_point last_cycle;
 
     void init(void);
 	void fetch_opcode(void);
 	void execute_instruction(void);
+	void count_timer(void);
 
 public:
 	bool load(std::string file_path);
 	void cycle(void);
 	void loadVideoRamInto(std::array<uint32_t, DISPLAY_SIZE>& pixels);
+	bool needs_to_draw;
 
     std::array<unsigned char, 16> keypad;
     std::array<unsigned char, DISPLAY_SIZE> screen;
-    bool needs_to_draw;
 
     const std::array<unsigned char, FONTSET_SIZE> fontset {
         0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
@@ -55,7 +56,7 @@ public:
         0xF0, 0x80, 0xF0, 0x80, 0x80, // F
     };
 
-    // For SDL obtaining keypress, updating keypad
+    /* For SDL obtaining keypress, updating keypad */
     const std::array<unsigned char, 16> keymap {
             SDLK_x, SDLK_1, SDLK_2, SDLK_3, SDLK_q,
             SDLK_w, SDLK_e, SDLK_a, SDLK_s, SDLK_d,

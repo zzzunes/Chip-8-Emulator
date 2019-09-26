@@ -13,6 +13,6 @@ namespace Display {
 	SDL_Texture* textureInit(SDL_Renderer* renderer);
 	void setKeysDown(chip_8& cpu, SDL_Event event);
 	void setKeysUp(chip_8& cpu, SDL_Event event);
-};
+}
 
 #endif
