@@ -24,7 +24,15 @@ void chip_8::init(void) {
     }
 
     delay_timer = 0;
-    sound_timer = 0;
+}
+
+void chip_8::cycle() {
+	fetch_opcode();
+	execute_instruction();
+}
+
+void chip_8::fetch_opcode() {
+	this->opcode = opcode = memory[instruction_pointer] << 8 | memory[instruction_pointer + 1];
 }
 
 bool chip_8::load(std::string file_path) {
@@ -69,11 +77,15 @@ bool chip_8::load(std::string file_path) {
     return true;
 }
 
-bool chip_8::execute_instruction() {
-    // opcode is two bytes: one higher byte for current location and one lower byte combine for one opcode
-    opcode = memory[instruction_pointer] << 8 | memory[instruction_pointer + 1];
-    bool opcode_success = true;
+void chip_8::loadVideoRamInto(std::array<uint32_t, DISPLAY_SIZE>& pixels) {
+	for (int i = 0; i < DISPLAY_SIZE; i++) {
+		unsigned char pixel = screen[i];
+		unsigned int color = 0x0050FF50;
+		pixels[i] = color * pixel | 0xFF000000;
+	}
+}
 
+void chip_8::execute_instruction() {
     switch (opcode & 0xF000) {
         case 0x0000: {
             switch (opcode & 0x000F) {
@@ -93,7 +105,6 @@ bool chip_8::execute_instruction() {
 
                 default: {
                     std::cout << "ROM includes unknown opcode. 1" << std::endl;
-                    opcode_success = false;
                 }
             }
             break;
@@ -228,7 +239,6 @@ bool chip_8::execute_instruction() {
 
                 default: {
                     std::cout << "ROM includes unknown opcode. 2" << std::endl;
-                    opcode_success = false;
                 }
             }
             break;
@@ -317,7 +327,6 @@ bool chip_8::execute_instruction() {
 
                 default: {
                     std::cout << "ROM includes unknown opcode. 3" << std::endl;
-                    opcode_success = false;
                 }
             }
             break;
@@ -359,7 +368,7 @@ bool chip_8::execute_instruction() {
 
                 // FX18 - Sets sound timer to V[X]
                 case 0x0018: {
-                    sound_timer = V[(opcode & 0x0F00) >> 8];
+                    /* Sound timer */
                     instruction_pointer += 2;
                     break;
                 }
@@ -423,7 +432,6 @@ bool chip_8::execute_instruction() {
 
                 default: {
                     std::cout << "ROM includes unknown opcode. 4" << std::endl;
-                    opcode_success = false;
                 }
             }
             break;
@@ -431,15 +439,8 @@ bool chip_8::execute_instruction() {
 
         default: {
             std::cout << "ROM includes unknown opcode: 5" << std::endl;
-            opcode_success = false;
         }
     }
 
     if (delay_timer > 0) delay_timer--;
-    if (sound_timer > 0) {
-        if (sound_timer == 1);
-        sound_timer--;
-    }
-
-    return opcode_success;
 }

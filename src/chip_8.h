@@ -22,13 +22,15 @@ private:
     unsigned short opcode;
 
     unsigned char delay_timer;
-    unsigned char sound_timer;
 
     void init(void);
+	void fetch_opcode(void);
+	void execute_instruction(void);
 
 public:
-    bool execute_instruction(void);
-    bool load(std::string file_path);
+	bool load(std::string file_path);
+	void cycle(void);
+	void loadVideoRamInto(std::array<uint32_t, DISPLAY_SIZE>& pixels);
 
     std::array<unsigned char, 16> keypad;
     std::array<unsigned char, DISPLAY_SIZE> screen;
