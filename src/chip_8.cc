@@ -2,7 +2,6 @@
 #include <fstream>
 #include <vector>
 #include <random>
-
 #include "chip_8.h"
 
 void chip_8::init(void) {
@@ -20,7 +19,6 @@ void chip_8::init(void) {
     for (unsigned char x : screen) x = 0;
     for (unsigned char x : memory) x = 0;
 
-    // Load fonts into lowest memory (0-80)
     for (int i = 0; i < FONTSET_SIZE; i++) {
         memory[i] = fontset[i];
     }
@@ -52,11 +50,6 @@ bool chip_8::load(std::string file_path) {
     if (input_rom) {
         std::cout << "ROM read successfully." << std::endl;
     }
-    else {
-        std::cout << "ROM read failed." << std::endl;
-        delete[] buffer;
-        return false;
-    }
 
     // Enough space?
     if ((MEM_SIZE - LOWER_MEMORY) > rom_size) {
@@ -87,7 +80,7 @@ bool chip_8::execute_instruction() {
                 // 00E0 - Clear
                 case 0x0000: {
                     for (unsigned char x : screen) x = 0;
-                    screen_has_changed = true;
+                    needs_to_draw = true;
                     instruction_pointer += 2;
                     break;
                 }
@@ -300,7 +293,7 @@ bool chip_8::execute_instruction() {
                 }
             }
 
-            screen_has_changed = true;
+            needs_to_draw = true;
             instruction_pointer += 2;
             break;
         }

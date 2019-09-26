@@ -32,7 +32,7 @@ public:
 
     std::array<unsigned char, 16> keypad;
     std::array<unsigned char, DISPLAY_SIZE> screen;
-    bool screen_has_changed;
+    bool needs_to_draw;
 
     const std::array<unsigned char, FONTSET_SIZE> fontset {
         0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
