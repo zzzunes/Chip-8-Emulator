@@ -104,14 +104,14 @@ void chip_8::execute_instruction() {
     switch (opcode & 0xF000) {
         case 0x0000: {
             switch (opcode & 0x000F) {
-                // 00E0 - Clear
+                /* 00E0 - Clear */
                 case 0x0000: {
                     for (unsigned char x : screen) x = 0;
                     needs_to_draw = true;
                     instruction_pointer += 2;
                     break;
                 }
-                    // 00EE - Return from subroutine
+                /* 00EE - Return from subroutine */
                 case 0x000E: {
                     instruction_pointer = stack[--stack_pointer];
                     instruction_pointer += 2;
@@ -124,55 +124,48 @@ void chip_8::execute_instruction() {
             }
             break;
         }
-            // 1NNN - Jumps to NNN
+        /* 1NNN - Jumps to NNN */
         case 0x1000: {
             instruction_pointer = opcode & 0xFFF;
             break;
         }
 
-            // 2NNN - Calls subroutine at NNN
+        /* 2NNN - Calls subroutine at NNN */
         case 0x2000: {
             stack[stack_pointer++] = instruction_pointer;
             instruction_pointer = opcode & 0x0FFF;
             break;
         }
 
-            // 3[X]NN - Skips next instruction if register V[X] == NN
-            // The term V[opcode & 0x0F00] >> 8 finds V[X] since the registers are 16 bits
+        /* 3[X]NN - Skips next instruction if register V[X] == NN */
         case 0x3000: {
-            if (V[x] == (opcode & 0x00FF)) {
-                instruction_pointer += 4;
-            }
-            else instruction_pointer += 2;
+            if (V[x] == (opcode & 0x00FF)) instruction_pointer += 2;
+            instruction_pointer += 2;
             break;
         }
 
-            // 4[X]NN - Skips next instruction if register V[X] != NN
+        /* 4[X]NN - Skips next instruction if register V[X] != NN */
         case 0x4000: {
-            if (V[x] != (opcode & 0x00FF)) {
-                instruction_pointer += 4;
-            }
-            else instruction_pointer += 2;
+            if (V[x] != (opcode & 0x00FF)) instruction_pointer += 2;
+            instruction_pointer += 2;
             break;
         }
 
-            // 5XY0 - Skips next instruction if V[X] == VY
+        /* 5XY0 - Skips next instruction if V[X] == VY */
         case 0x5000: {
-            if (V[x] == V[(opcode & 0x00F0) >> 4]) {
-                instruction_pointer += 4;
-            }
-            else instruction_pointer += 2;
+            if (V[x] == V[(opcode & 0x00F0) >> 4]) instruction_pointer += 2;
+            instruction_pointer += 2;
             break;
         }
 
-            // 6XNN - Sets V[X] to NN
+        /* 6XNN - Sets V[X] to NN */
         case 0x6000: {
             V[x] = opcode & 0x00FF;
             instruction_pointer += 2;
             break;
         }
 
-            // 7XNN - adds NN to V[X]
+        /* 7XNN - adds NN to V[X] */
         case 0x7000: {
             V[x] += opcode & 0x00FF;
             instruction_pointer += 2;
@@ -181,35 +174,35 @@ void chip_8::execute_instruction() {
 
         case 0x8000: {
             switch (opcode & 0x000F) {
-                // 8XY0 - Sets V[X] to V[Y]
+                /* 8XY0 - Sets V[X] to V[Y] */
                 case 0x0000: {
                     V[x] = V[y];
                     instruction_pointer += 2;
                     break;
                 }
 
-                    // 8XY1 - Sets V[X] to V[X] || V[Y]
+                // 8XY1 - Sets V[X] to V[X] || V[Y]
                 case 0x0001: {
                     V[x] |= V[y];
                     instruction_pointer += 2;
                     break;
                 }
 
-                    // 8XY2 - Sets V[X] to V[X] & V[Y]
+                // 8XY2 - Sets V[X] to V[X] & V[Y]
                 case 0x0002: {
                     V[x] &= V[y];
                     instruction_pointer += 2;
                     break;
                 }
 
-                    // 8XY3 - Sets V[X] to V[X] ^ V[Y]
+                // 8XY3 - Sets V[X] to V[X] ^ V[Y]
                 case 0x0003: {
                     V[x] ^= V[y];
                     instruction_pointer += 2;
                     break;
                 }
 
-                    // 8XY4 - Adds V[Y] to V[X], VF is set to 1 if there's carry
+                // 8XY4 - Adds V[Y] to V[X], VF is set to 1 if there's carry
                 case 0x0004: {
                     if (V[x] <= V[y]) V[0xF] = 1;
                     else V[0xF] = 0;
@@ -218,7 +211,7 @@ void chip_8::execute_instruction() {
                     break;
                 }
 
-                    // 8XY5 - Subtracts V[Y] from V[X], VF is set to 0 if there's borrow
+                // 8XY5 - Subtracts V[Y] from V[X], VF is set to 0 if there's borrow
                 case 0x0005: {
                     if (V[x] <= V[y]) V[0xF] = 0;
                     else V[0xF] = 1;
@@ -227,7 +220,7 @@ void chip_8::execute_instruction() {
                     break;
                 }
 
-                    // 8XY6 - Stores least significant bit of V[X] in VF then V[X] >> 1
+                // 8XY6 - Stores least significant bit of V[X] in VF then V[X] >> 1
                 case 0x0006: {
                     V[0xF] = V[x] & 0x1;
                     V[x] >>= 1;
@@ -235,7 +228,7 @@ void chip_8::execute_instruction() {
                     break;
                 }
 
-                    // 8XY7 - Sets V[X] to V[Y] minus V[X], VF is set to 0 if there's borrow
+                // 8XY7 - Sets V[X] to V[Y] minus V[X], VF is set to 0 if there's borrow
                 case 0x0007: {
                     if (V[y] <= V[x]) V[0xF] = 0;
                     else V[0xF] = 1;
@@ -244,7 +237,7 @@ void chip_8::execute_instruction() {
                     break;
                 }
 
-                    // 8XYE - Stores most significant bit of V[X] in V[F] then V[X] << 1
+                // 8XYE - Stores most significant bit of V[X] in V[F] then V[X] << 1
                 case 0x000E: {
                     V[0xF] = V[x] & 0xF;
                     V[x] <<= 1;
@@ -259,30 +252,32 @@ void chip_8::execute_instruction() {
             break;
         }
 
-            // 9XY0 - Skips next instruction if V[X] != V[Y]
+        // 9XY0 - Skips next instruction if V[X] != V[Y]
         case 0x9000: {
             if (V[x] != V[y]) instruction_pointer += 2;
             instruction_pointer += 2;
             break;
         }
 
-            // ANNN - Sets Index Register to NNN
+        /* ANNN - Sets Index Register to NNN */
         case 0xA000: {
             index_register = opcode & 0x0FFF;
             instruction_pointer += 2;
             break;
         }
 
-            // BNNN - Sets instruction pointer to NNN plus V[0]
+        /* BNNN - Sets instruction pointer to NNN plus V[0] */
         case 0xB000: {
             instruction_pointer = (opcode & 0x0FFF) + V[0];
             break;
         }
 
-            // CXNN - Sets V[X] to result of a random number bitwise and with NN
+        /*
+         * CXNN - Sets V[X] to result of a random number bitwise and with NN
+         * Random generation from user Cornstalks on StackOverflow:
+         * https://stackoverflow.com/questions/13445688/how-to-generate-a-random-number-in-c
+         */
         case 0xC000: {
-            // Random generation from user Cornstalks on StackOverflow:
-            // https://stackoverflow.com/questions/13445688/how-to-generate-a-random-number-in-c
             std::mt19937 rng;
             rng.seed(std::random_device()());
             std::uniform_int_distribution<std::mt19937::result_type> random_range(0,255);
@@ -417,9 +412,7 @@ void chip_8::execute_instruction() {
                     break;
                 }
 
-                    // Almost there..
-                    // FX55 - Stores V[0] to V[X] in memory starting at index. The offset from index is
-                    // increased by 1 for each value written
+                /* FX55 - Stores V[0] to V[X] in memory starting at index. */
                 case 0x0055: {
                     for (int i = 0; i <= x; i++) {
                         memory[index_register + i] = V[i];
@@ -430,9 +423,7 @@ void chip_8::execute_instruction() {
                     break;
                 }
 
-                    // Finally!
-                    // FX65 - Fills V[0] to V[X] with values from memory starting at address of the index register.
-                    // Again, offset from index is increased by 1 for each value written
+                /* FX65 - Fills V[0] to V[X] with values from memory starting at address of the index register. */
                 case 0x0065: {
                     for (int i = 0; i <= x; i++) {
                         V[i] = memory[index_register + i];
