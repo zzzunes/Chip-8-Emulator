@@ -292,11 +292,11 @@ void chip_8::execute_instruction() {
             break;
         }
 
-            /*
-             * DXYN - Draws a sprite at coordinate (V[X], V[Y]) that has width of 8 pixels
-             * and height N pixels. Each row is read as bit-coded starting from Index Register.
-             * VF is set to 1 if any pixels are flipped from set --> unset; VF set to 0 otherwise
-             */
+        /*
+        * DXYN - Draws a sprite at coordinate (V[X], V[Y]) that has width of 8 pixels
+        * and height N pixels. Each row is read as bit-coded starting from Index Register.
+        * VF is set to 1 if any pixels are flipped from set --> unset; VF set to 0 otherwise
+        */
         case 0xD000: {
             uint16_t vx = V[x];
             uint16_t vy = V[y];
@@ -304,18 +304,20 @@ void chip_8::execute_instruction() {
             uint16_t pixel;
 
             V[0xF] = 0;
-            for (int yline = 0; yline < height; yline++)
+            for (int row = 0; row < height; row++)
             {
-                pixel = memory[index_register + yline];
-                for(int xline = 0; xline < 8; xline++)
+                pixel = memory[index_register + row];
+                for(int column = 0; column < 8; column++)
                 {
-                    if((pixel & (0x80 >> xline)) != 0)
+                    if((pixel & (0x80 >> column)) != 0)
                     {
-                        if(screen[(vx + xline + ((vy + yline) * 64))] == 1)
+                        int spriteX = vx + column;
+                        int spriteY = (vy + row) * 64;
+                        if(screen[spriteX + spriteY] == 1)
                         {
                             V[0xF] = 1;
                         }
-                        screen[vx + xline + ((vy + yline) * 64)] ^= 1;
+                        screen[spriteX + spriteY] ^= 1; /* Flip */
                     }
                 }
             }
@@ -325,7 +327,7 @@ void chip_8::execute_instruction() {
             break;
         }
 
-            // Key operations
+        /* Key operations */
         case 0xE000: {
             switch (opcode & 0x000F) {
                 // EX9E - Skips next instruction if key stored in V[X] is pressed
@@ -335,7 +337,7 @@ void chip_8::execute_instruction() {
                     break;
                 }
 
-                    // EXA1 - Skips next instruction if key stored in V[X} ISN'T pressed
+                // EXA1 - Skips next instruction if key stored in V[X} ISN'T pressed
                 case 0x0001: {
                     if (not keypad[V[x]]) instruction_pointer += 2;
                     instruction_pointer += 2;

@@ -21,8 +21,8 @@ int main(int argc, char* argv[]) {
     SDL_Window* window = Display::sdlInit();
     SDL_Renderer* renderer = Display::rendererInit(window);
     SDL_Texture* texture = Display::textureInit(renderer);
-    if (not cpu.load(argv[1])) return -1;
     std::array<uint32_t, DISPLAY_SIZE> pixels;
+    if (not cpu.load(argv[1])) exit(EXIT_FAILURE);
 
     game_loop:
         cpu.cycle();
