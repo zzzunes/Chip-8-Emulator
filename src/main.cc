@@ -7,16 +7,11 @@
 
 using namespace Display;
 
-bool validArgs(int argc) {
-    if (argc not_eq 2) {
-        std::cout << "Usage: chip-8 <ROM>" << std::endl;
-        return false;
-    }
-    return true;
-}
-
 int main(int argc, char* argv[]) {
-    if (not validArgs(argc)) exit(EXIT_FAILURE);
+    if (not argc == 2) {
+        std::cout << "Usage: chip_8 <ROM>" << std::endl;
+        exit(EXIT_FAILURE);
+    }
     chip_8 cpu = chip_8();
     SDL_Window* window = Display::sdlInit();
     SDL_Renderer* renderer = Display::rendererInit(window);

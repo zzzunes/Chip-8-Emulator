@@ -94,7 +94,7 @@ void chip_8::loadVideoRamInto(std::array<uint32_t, DISPLAY_SIZE>& pixels) {
     for (int i = 0; i < DISPLAY_SIZE; i++) {
         unsigned char pixel = screen[i];
         unsigned int color = 0x0050FF50;
-        pixels[i] = color * pixel | 0xFF000000;
+        pixels[i] = color * pixel;
     }
 }
 
