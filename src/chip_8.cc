@@ -304,20 +304,17 @@ void chip_8::execute_instruction() {
             uint16_t pixel;
 
             V[0xF] = 0;
-            for (int row = 0; row < height; row++)
-            {
+            for (int row = 0; row < height; row++) {
                 pixel = memory[index_register + row];
-                for(int column = 0; column < 8; column++)
-                {
-                    if((pixel & (0x80 >> column)) != 0)
-                    {
+                for(int column = 0; column < 8; column++) {
+                    if((pixel & (0x80 >> column)) != 0) {
                         int spriteX = vx + column;
                         int spriteY = (vy + row) * 64;
-                        if(screen[spriteX + spriteY] == 1)
-                        {
+                        int currentPosition = spriteX + spriteY;
+                        if(screen[currentPosition] == 1) {
                             V[0xF] = 1;
                         }
-                        screen[spriteX + spriteY] ^= 1; /* Flip */
+                        screen[currentPosition] ^= 1; /* Flip */
                     }
                 }
             }
