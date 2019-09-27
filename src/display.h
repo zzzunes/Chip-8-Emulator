@@ -14,6 +14,7 @@ namespace Display {
     SDL_Texture* textureInit(SDL_Renderer* renderer);
     void setKeysDown(chip_8& cpu, SDL_Event event);
     void setKeysUp(chip_8& cpu, SDL_Event event);
+    void drawFrame(SDL_Renderer* renderer, SDL_Texture* texture, std::array<uint32_t, DISPLAY_SIZE> pixels);
 }
 
 #endif

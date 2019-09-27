@@ -1,8 +1,8 @@
 #include "display.h"
 
 namespace Display {
-    SDL_Window *sdlInit() {
-        SDL_Window *window = nullptr;
+    SDL_Window* sdlInit() {
+        SDL_Window* window = nullptr;
 
         if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
             std::cout << "Error: Could not initialize SDL drawing." << std::endl;
@@ -19,17 +19,17 @@ namespace Display {
         return window;
     }
 
-    SDL_Renderer *rendererInit(SDL_Window *window) {
+    SDL_Renderer *rendererInit(SDL_Window* window) {
         SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, 0);
         SDL_RenderSetLogicalSize(renderer, WIDTH, HEIGHT);
         return renderer;
     }
 
-    SDL_Texture *textureInit(SDL_Renderer *renderer) {
+    SDL_Texture *textureInit(SDL_Renderer* renderer) {
         return SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, 64, 32);
     }
 
-    void setKeysDown(chip_8 &cpu, SDL_Event event) {
+    void setKeysDown(chip_8& cpu, SDL_Event event) {
         for (int i = 0; i < 16; ++i) {
             if (event.key.keysym.sym == cpu.keymap[i]) {
                 cpu.keypad[i] = 1;
@@ -37,11 +37,18 @@ namespace Display {
         }
     }
 
-    void setKeysUp(chip_8 &cpu, SDL_Event event) {
+    void setKeysUp(chip_8& cpu, SDL_Event event) {
         for (int i = 0; i < 16; ++i) {
             if (event.key.keysym.sym == cpu.keymap[i]) {
                 cpu.keypad[i] = 0;
             }
         }
+    }
+
+    void drawFrame(SDL_Renderer* renderer, SDL_Texture* texture, std::array<uint32_t, DISPLAY_SIZE> pixels) {
+        SDL_UpdateTexture(texture, nullptr, pixels.begin(), 64 * sizeof(unsigned int));
+        SDL_RenderClear(renderer);
+        SDL_RenderCopy(renderer, texture, nullptr, nullptr);
+        SDL_RenderPresent(renderer);
     }
 }

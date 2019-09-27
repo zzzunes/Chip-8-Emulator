@@ -24,9 +24,9 @@ int main(int argc, char* argv[]) {
 
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_QUIT) return -1;
+            if (event.type == SDL_QUIT) exit(EXIT_SUCCESS);
             if (event.type == SDL_KEYDOWN) {
-                if (event.key.keysym.sym == SDLK_ESCAPE) return -1;
+                if (event.key.keysym.sym == SDLK_ESCAPE) exit(EXIT_SUCCESS);
                 if (event.key.keysym.sym == SDLK_RCTRL) asm("int3");
                 Display::setKeysDown(cpu, event);
             }
@@ -38,10 +38,7 @@ int main(int argc, char* argv[]) {
         if (cpu.needs_to_draw) {
             cpu.needs_to_draw = false;
             cpu.loadVideoRamInto(pixels);
-            SDL_UpdateTexture(texture, nullptr, pixels.begin(), 64 * sizeof(unsigned int));
-            SDL_RenderClear(renderer);
-            SDL_RenderCopy(renderer, texture, nullptr, nullptr);
-            SDL_RenderPresent(renderer);
+            Display::drawFrame(renderer, texture, pixels);
         }
 
         std::this_thread::sleep_for(std::chrono::microseconds(1400));
