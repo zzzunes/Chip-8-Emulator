@@ -1,6 +1,4 @@
-#include <iostream>
 #include "display.h"
-#include "chip_8.h"
 
 namespace Display {
     SDL_Window *sdlInit() {
@@ -11,7 +9,7 @@ namespace Display {
             exit(EXIT_FAILURE);
         }
 
-        window = SDL_CreateWindow("Chip-8", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+        window = SDL_CreateWindow("Emerald Emulator", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
                                   WIDTH, HEIGHT, SDL_WINDOW_SHOWN);
 
         if (not window) {

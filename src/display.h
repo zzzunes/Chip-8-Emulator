@@ -1,11 +1,12 @@
 #ifndef CHIP_8_EMULATOR_DISPLAY_H
 #define CHIP_8_EMULATOR_DISPLAY_H
 
+#include <iostream>
 #include <SDL2/SDL.h>
 #include "chip_8.h"
 
-const int WIDTH = 1280;
-const int HEIGHT = 720;
+const int WIDTH = 1024;
+const int HEIGHT = 512;
 
 namespace Display {
     SDL_Window* sdlInit();
