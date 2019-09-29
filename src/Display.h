@@ -3,7 +3,10 @@
 
 #include <iostream>
 #include <SDL2/SDL.h>
-#include "chip_8.h"
+#include <array>
+#include "Chip8.h"
+
+class Chip8;
 
 const int WIDTH = 1024;
 const int HEIGHT = 512;
@@ -14,6 +17,9 @@ private:
     void rendererInit();
     void textureInit();
 
+    void setKeysDown(Chip8& cpu, SDL_Event event);
+    void setKeysUp(Chip8& cpu, SDL_Event event);
+
     SDL_Window* window;
     SDL_Renderer* renderer;
     SDL_Texture* texture;
@@ -23,9 +29,8 @@ public:
         rendererInit();
         textureInit();
     }
-    void setKeysDown(chip_8& cpu, SDL_Event event);
-    void setKeysUp(chip_8& cpu, SDL_Event event);
     void drawFrame(std::array<uint32_t, DISPLAY_SIZE> pixels);
+    void handleEvents(Chip8& cpu);
 };
 
 #endif

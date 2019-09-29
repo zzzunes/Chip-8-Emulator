@@ -2,9 +2,10 @@
 #include <fstream>
 #include <vector>
 #include <random>
-#include "chip_8.h"
+#include "Chip8.h"
+#include "Display.h"
 
-void chip_8::init(void) {
+void Chip8::init(void) {
     instruction_pointer = 0x200;
     opcode = 0;
     index_register = 0;
@@ -27,17 +28,17 @@ void chip_8::init(void) {
     last_cycle = std::chrono::system_clock::now();
 }
 
-void chip_8::cycle() {
+void Chip8::cycle() {
     fetch_opcode();
     execute_instruction();
     count_timer();
 }
 
-void chip_8::fetch_opcode() {
+void Chip8::fetch_opcode() {
     this->opcode = opcode = memory[instruction_pointer] << 8 | memory[instruction_pointer + 1];
 }
 
-void chip_8::count_timer() {
+void Chip8::count_timer() {
     auto current_time = std::chrono::system_clock::now();
     auto duration = current_time - last_cycle;
     auto cycle_time = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
@@ -47,7 +48,7 @@ void chip_8::count_timer() {
     }
 }
 
-bool chip_8::load(std::string file_path) {
+bool Chip8::load(std::string file_path) {
     init();
 
     std::cout << "Loading ROM..." << std::endl;
@@ -90,7 +91,7 @@ bool chip_8::load(std::string file_path) {
 }
 
 /* Called on every frame to load current VRAM (screen) into pixels array used by SDL */
-void chip_8::loadVideoRamInto(std::array<uint32_t, DISPLAY_SIZE>& pixels) {
+void Chip8::loadVideoRamInto(std::array<uint32_t, DISPLAY_SIZE>& pixels) {
     for (int i = 0; i < DISPLAY_SIZE; i++) {
         unsigned char pixel = screen[i];
         unsigned int color = 0x0050FF50;
@@ -98,7 +99,15 @@ void chip_8::loadVideoRamInto(std::array<uint32_t, DISPLAY_SIZE>& pixels) {
     }
 }
 
-void chip_8::execute_instruction() {
+void Chip8::draw(Display* display, std::array<uint32_t, DISPLAY_SIZE>& pixels) {
+    if (needs_to_draw) {
+        loadVideoRamInto(pixels);
+        display->drawFrame(pixels);
+        needs_to_draw = false;
+    }
+}
+
+void Chip8::execute_instruction() {
     uint8_t x = (opcode & 0x0F00) >> 8; /* Used for register indexing V[x] & V[y] */
     uint8_t y = (opcode & 0x00F0) >> 4;
     switch (opcode & 0xF000) {
@@ -393,7 +402,7 @@ void chip_8::execute_instruction() {
                 }
 
                     // FX29 - Sets index register to location of sprite for the character in V[X]
-                    // Remember, the fontset array in chip_8.h works in sets of five
+                    // Remember, the fontset array in Chip8.h works in sets of five
                 case 0x0029: {
                     index_register = V[x] * 0x5;
                     instruction_pointer += 2;

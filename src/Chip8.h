@@ -5,12 +5,14 @@
 #include <SDL2/SDL.h>
 #include <chrono>
 
+class Display;
+
 const int DISPLAY_SIZE = 2048;
 const int MEM_SIZE = 4096;
 const int FONTSET_SIZE = 80;
 const int LOWER_MEMORY = 512;
 
-class chip_8 {
+class Chip8 {
 private:
     std::array<unsigned char, MEM_SIZE> memory;
     std::array<unsigned char, 16> V; /* Registers V0-VF */
@@ -21,18 +23,19 @@ private:
     unsigned short index_register;
     unsigned short opcode;
     unsigned char delay_timer;
+    bool needs_to_draw;
     std::chrono::system_clock::time_point last_cycle;
 
     void init(void);
     void fetch_opcode(void);
     void execute_instruction(void);
     void count_timer(void);
+    void loadVideoRamInto(std::array<uint32_t, DISPLAY_SIZE>& pixels);
 
 public:
     bool load(std::string file_path);
     void cycle(void);
-    void loadVideoRamInto(std::array<uint32_t, DISPLAY_SIZE>& pixels);
-    bool needs_to_draw;
+    void draw(Display* display, std::array<uint32_t, DISPLAY_SIZE>& pixels);
 
     std::array<unsigned char, 16> keypad;
     std::array<unsigned char, DISPLAY_SIZE> screen;
