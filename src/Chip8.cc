@@ -32,6 +32,7 @@ void Chip8::cycle() {
     fetch_opcode();
     execute_instruction();
     count_timer();
+    sleep(1300);
 }
 
 void Chip8::fetch_opcode() {
@@ -42,10 +43,14 @@ void Chip8::count_timer() {
     auto current_time = std::chrono::system_clock::now();
     auto duration = current_time - last_cycle;
     auto cycle_time = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
-    if (delay_timer > 0 && cycle_time > 3) {
+    if (delay_timer > 0 && cycle_time > 4) {
         delay_timer--;
         last_cycle = current_time;
     }
+}
+
+void Chip8::sleep(int time) {
+    std::this_thread::sleep_for(std::chrono::microseconds(time));
 }
 
 bool Chip8::load(std::string file_path) {

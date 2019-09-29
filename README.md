@@ -10,7 +10,9 @@ First, clone the repository and build the project:
 ``` 
 $ git clone https://github.com/Jragoon/Chip-8-Emulator/
 $ cd Chip-8-Emulator/src
-$ make; make clean
+$ mkdir build; cd build
+$ cmake ..
+$ make
 ```    
 Then, to run the emulator:
 

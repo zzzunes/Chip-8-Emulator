@@ -4,6 +4,7 @@
 #include <array>
 #include <SDL2/SDL.h>
 #include <chrono>
+#include <thread>
 
 class Display;
 
@@ -31,6 +32,7 @@ private:
     void execute_instruction(void);
     void count_timer(void);
     void loadVideoRamInto(std::array<uint32_t, DISPLAY_SIZE>& pixels);
+    void sleep(int time);
 
 public:
     bool load(std::string file_path);
