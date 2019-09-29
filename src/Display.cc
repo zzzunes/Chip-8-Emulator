@@ -29,18 +29,18 @@ void Display::textureInit() {
     this->texture = SDL_CreateTexture(this->renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, 64, 32);
 }
 
-void Display::setKeysDown(Chip8& cpu, SDL_Event event) {
+void Display::setKeysDown(Chip8* cpu, SDL_Event event) {
     for (int i = 0; i < 16; ++i) {
-        if (event.key.keysym.sym == cpu.keymap[i]) {
-            cpu.keypad[i] = 1;
+        if (event.key.keysym.sym == cpu->keymap[i]) {
+            cpu->keypad[i] = 1;
         }
     }
 }
 
-void Display::setKeysUp(Chip8& cpu, SDL_Event event) {
+void Display::setKeysUp(Chip8* cpu, SDL_Event event) {
     for (int i = 0; i < 16; ++i) {
-        if (event.key.keysym.sym == cpu.keymap[i]) {
-            cpu.keypad[i] = 0;
+        if (event.key.keysym.sym == cpu->keymap[i]) {
+            cpu->keypad[i] = 0;
         }
     }
 }
@@ -52,7 +52,7 @@ void Display::drawFrame(std::array<uint32_t, DISPLAY_SIZE> pixels) {
     SDL_RenderPresent(renderer);
 }
 
-void Display::handleEvents(Chip8& cpu) {
+void Display::handleEvents(Chip8* cpu) {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
         if (event.type == SDL_QUIT) exit(EXIT_SUCCESS);

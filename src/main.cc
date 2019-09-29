@@ -10,16 +10,16 @@ int main(int argc, char* argv[]) {
         std::cout << "Usage: Chip8 <ROM>" << std::endl;
         exit(EXIT_FAILURE);
     }
-    Chip8 cpu = Chip8();
+    Chip8* cpu = new Chip8();
     Display* display = new Display();
     std::array<uint32_t, DISPLAY_SIZE> pixels {};
-    if (not cpu.load(argv[1])) exit(EXIT_FAILURE);
+    if (not cpu->load(argv[1])) exit(EXIT_FAILURE);
 
     game_loop:
-        cpu.cycle();
-        cpu.draw(display, pixels);
+        cpu->cycle();
+        cpu->draw(display, pixels);
         display->handleEvents(cpu);
 
-        std::this_thread::sleep_for(std::chrono::microseconds(1400));
+        std::this_thread::sleep_for(std::chrono::microseconds(1500));
         goto game_loop;
 }

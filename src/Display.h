@@ -17,8 +17,8 @@ private:
     void rendererInit();
     void textureInit();
 
-    void setKeysDown(Chip8& cpu, SDL_Event event);
-    void setKeysUp(Chip8& cpu, SDL_Event event);
+    void setKeysDown(Chip8* cpu, SDL_Event event);
+    void setKeysUp(Chip8* cpu, SDL_Event event);
 
     SDL_Window* window;
     SDL_Renderer* renderer;
@@ -30,7 +30,7 @@ public:
         textureInit();
     }
     void drawFrame(std::array<uint32_t, DISPLAY_SIZE> pixels);
-    void handleEvents(Chip8& cpu);
+    void handleEvents(Chip8* cpu);
 };
 
 #endif
