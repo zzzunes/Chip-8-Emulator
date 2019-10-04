@@ -32,7 +32,7 @@ void Chip8::cycle() {
     fetch_opcode();
     execute_instruction();
     count_timer();
-    sleep(1300);
+    sleep(1400);
 }
 
 void Chip8::fetch_opcode() {
