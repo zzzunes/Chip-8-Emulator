@@ -23,8 +23,7 @@ $ ./Chip8 ../Roms/PONG
 
 # Screenshots
 
-![Alt text](/Screenshots/Pong.png?raw=true "Pong!")
-![Alt text](/Screenshots/Brix0.png?raw=true "Brix")
+![Alt text](/Screenshots/brix.gif?raw=true "Pong!")
 
 # Additional Information
 
