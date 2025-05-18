@@ -8,7 +8,7 @@ Chip-8 is an interpreted programming language used on computers such as the COSM
 First, clone the repository and build the project:
 
 ``` 
-$ git clone https://github.com/Jragoon/Chip-8-Emulator/
+$ git clone https://github.com/zzzunes/Chip-8-Emulator/
 $ cd Chip-8-Emulator/src
 $ mkdir build; cd build
 $ cmake ..
